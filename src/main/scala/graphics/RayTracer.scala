@@ -1,7 +1,7 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{Pos3, Sphere, Utils, Vec3}
+import common.{Pos3, Vec3}
 import file.ImageWriter
 
 class RayTracer(cameraPos: Pos3, viewport: Viewport, scene: Scene) {
@@ -22,8 +22,8 @@ class RayTracer(cameraPos: Pos3, viewport: Viewport, scene: Scene) {
   private def trace(r: Ray): Color = {
     scene.sceneObjects
       .filter(_.isHitByRay(r))
+      .flatMap(_.getRayHitColor(r))
       .lastOption
-      .map(_.getRayHitColor(r))
       .getOrElse((0,0,0))
   }
 

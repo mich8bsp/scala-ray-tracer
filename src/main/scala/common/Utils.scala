@@ -10,7 +10,7 @@ object Common {
 
 
 object Utils {
-  def colorNormalizer(colorDouble: ColorDouble): Color = {
+  def normalizeColor(colorDouble: ColorDouble): Color = {
     ((colorDouble._1 * 255).toInt, (colorDouble._2 * 255).toInt, (colorDouble._3 * 255).toInt)
   }
 
