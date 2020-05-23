@@ -1,6 +1,7 @@
 package graphics
 
-import common.{HittableObject, Utils, Vec3}
+import common.Common.Color
+import common.{Color, HittableObject, Vec3}
 
 class Background extends HittableObject{
 
@@ -8,11 +9,9 @@ class Background extends HittableObject{
 
   override def isHitByRay(rayHitData: Seq[RayHitData]): Boolean = true
 
-  override def getRayHitColor(rayHitData: RayHitData): Option[(Int, Int, Int)] = {
+  override def getRayHitColor(rayHitData: RayHitData): Option[Color] = {
     val unitDirection = rayHitData.ray.direction.unit
     val t = 0.5 * (unitDirection.y  + 1D)
-    Some(Utils.normalizeColor(
-      (1.0-0.5*t, 1.0-0.3*t, 1.0)
-    ))
+    Some((Color(1D, 1D,1D) * (1D-t)) + (Color(0.5,0.7,1.0) * t))
   }
 }

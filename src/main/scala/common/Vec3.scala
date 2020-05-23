@@ -1,7 +1,5 @@
 package common
 
-import common.Common.Pos3
-
 case class Vec3(x: Double,
                 y: Double,
                 z: Double){
@@ -31,12 +29,12 @@ case class Vec3(x: Double,
   def lengthSquared: Double = x*x + y*y + z*z
 
   def unit: Vec3 = this / length
+  def clamp(minVal: Int, maxVal: Double): Vec3 = Vec3.create(
+    math.max(math.min(x, maxVal), minVal),
+    math.max(math.min(y, maxVal), minVal),
+    math.max(math.min(z, maxVal), minVal)
+  )
 
-}
-
-object Pos3{
-  def create: Pos3 = Vec3.create
-  def create(x: Double, y: Double, z: Double): Pos3 = Vec3.create(x,y,z)
 }
 
 object Vec3{

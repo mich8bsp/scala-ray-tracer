@@ -1,7 +1,7 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{HittableObject, Utils, Vec3}
+import common.{Color, HittableObject, Vec3}
 
 case class Sphere(center: Pos3,
                   radius: Double) extends HittableObject {
@@ -38,6 +38,6 @@ case class Sphere(center: Pos3,
 
   override def getRayHitColor(rayHitData: RayHitData): Option[Color] = {
     val normal: Vec3 = rayHitData.hitPointNormal
-    Some(Utils.normalizeColor(0.5 * normal.x + 0.5, 0.5 * normal.y + 0.5, 0.5 * normal.z + 0.5))
+    Some((normal + Color(1D, 1D, 1D))* 0.5)
   }
 }
