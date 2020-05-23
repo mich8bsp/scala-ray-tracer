@@ -1,10 +1,16 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{Color, HittableObject, Vec3}
+import common.{Color, HittableObject, Material, Vec3}
 
 case class Sphere(center: Pos3,
                   radius: Double) extends HittableObject {
+  private var material: Option[Material] = None
+
+  def withMaterial(material: Material): Sphere = {
+    this.material = Some(material)
+    this
+  }
 
   override def hitWithRay(ray: Ray, tMin: Double, tMax: Double): Seq[RayHitData] = {
     val A = ray.origin
@@ -40,4 +46,6 @@ case class Sphere(center: Pos3,
     val normal: Vec3 = rayHitData.hitPointNormal
     Some((normal + Color(1D, 1D, 1D))* 0.5)
   }
+
+  override def getMaterial: Option[Material] = material
 }

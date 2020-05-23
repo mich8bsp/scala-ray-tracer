@@ -12,4 +12,6 @@ trait HittableObject {
 
   def isHitByRay(rayHitData: Seq[RayHitData]): Boolean
   def getRayHitColor(rayHitData: RayHitData): Option[Color]
+
+  def getMaterial: Option[Material]
 }

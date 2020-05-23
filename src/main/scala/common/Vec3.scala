@@ -1,5 +1,7 @@
 package common
 
+import scala.util.Random
+
 case class Vec3(x: Double,
                 y: Double,
                 z: Double){
@@ -35,6 +37,10 @@ case class Vec3(x: Double,
     math.max(math.min(z, maxVal), minVal)
   )
 
+  def sqrt: Vec3 = Vec3.create(
+    math.sqrt(x), math.sqrt(y), math.sqrt(z)
+  )
+
 }
 
 object Vec3{
@@ -44,5 +50,18 @@ object Vec3{
   def create(x: Double, y: Double, z: Double): Vec3 = {
     //TODO: object pool?
     Vec3(x,y,z)
+  }
+
+  def random: Vec3 = random(0D, 1D)
+  def random(min: Double, max: Double): Vec3 = Vec3.create(Random.between(min, max), Random.between(min, max), Random.between(min, max))
+  def randomInUnitSphere: Vec3 = {
+    var found: Option[Vec3] = None
+    while(found.isEmpty){
+      val p = random(-1, 1)
+      if(p.lengthSquared < 1){
+        found = Some(p)
+      }
+    }
+    found.get
   }
 }
