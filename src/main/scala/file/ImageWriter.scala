@@ -7,10 +7,12 @@ import common.Common.Color
 import common.Utils
 import javax.imageio.ImageIO
 
+import scala.collection.mutable
+
 object ImageWriter {
   val DEFAULT_FORMAT = "jpg"
 
-  def createBufferedImage(imageBuffer: Array[Array[Color]]): BufferedImage = {
+  def createBufferedImage(imageBuffer: mutable.Buffer[mutable.Buffer[Color]]): BufferedImage = {
     val rows = imageBuffer.length
     val cols = imageBuffer.map(_.length).min
 
@@ -27,7 +29,7 @@ object ImageWriter {
     outImage
   }
 
-  def writeImageToFile(imageBuffer: Array[Array[Color]], path: String): Boolean = {
+  def writeImageToFile(imageBuffer: mutable.Buffer[mutable.Buffer[Color]], path: String): Boolean = {
     ImageIO.write(createBufferedImage(imageBuffer), DEFAULT_FORMAT, new File(path))
   }
 }

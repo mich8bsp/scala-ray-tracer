@@ -2,15 +2,21 @@ package graphics
 
 import common.Common.Color
 
+import scala.collection.mutable
+
 class PostProcessor {
 
 
-  def process(image: Array[Array[Color]]): Array[Array[Color]] = {
+  def process(image: mutable.Buffer[mutable.Buffer[Color]]): mutable.Buffer[mutable.Buffer[Color]] = {
     correctGamma(image)
   }
 
-  private def correctGamma(image: Array[Array[Color]]): Array[Array[Color]] = {
-    //TODO: fix shit performance
-    image.map(_.map(c => c.sqrt))
+  private def correctGamma(image: mutable.Buffer[mutable.Buffer[Color]]): mutable.Buffer[mutable.Buffer[Color]] = {
+    for(i <- image.indices){
+      for(j <- image(i).indices){
+        image(i)(j) = image(i)(j).sqrt
+      }
+    }
+    image
   }
 }

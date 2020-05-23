@@ -5,8 +5,8 @@ import graphics.{Ray, RayHitData}
 
 trait HittableObject {
 
-  def hitWithRay(ray: Ray, tMin: Double = 0D, tMax: Double = Double.MaxValue): Seq[RayHitData]
-  def isHitByRay(ray: Ray, tMin: Double = 0D, tMax: Double = Double.MaxValue): Boolean = {
+  def hitWithRay(ray: Ray, tMin: Double = 1e-3, tMax: Double = Double.MaxValue): Seq[RayHitData]
+  def isHitByRay(ray: Ray, tMin: Double = 1e-3, tMax: Double = Double.MaxValue): Boolean = {
     isHitByRay(hitWithRay(ray, tMin, tMax))
   }
 

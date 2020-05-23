@@ -17,12 +17,12 @@ class RayTracerTest extends AnyFlatSpec with Matchers {
   "image writer" should "create image and write to file" in {
     val input = (
       (0 to 50).map(_  =>
-        ((0 to 50).map(_ => Color(1,0,0)) ++ (0 to 50).map(_ => Color(0,1,0)) ++ (0 to 50).map(_ => Color(0, 0, 1))).toArray
+        ((0 to 50).map(_ => Color(1,0,0)) ++ (0 to 50).map(_ => Color(0,1,0)) ++ (0 to 50).map(_ => Color(0, 0, 1))).toBuffer
       ) ++
     (0 to 50).map(_  =>
-      ((0 to 50).map(_ => Color(0,0,0)) ++ (0 to 50).map(_ => Color(0.5,0.5,0.5)) ++ (0 to 50).map(_ => Color(1,1,1))).toArray
+      ((0 to 50).map(_ => Color(0,0,0)) ++ (0 to 50).map(_ => Color(0.5,0.5,0.5)) ++ (0 to 50).map(_ => Color(1,1,1))).toBuffer
       )
-      ).toArray
+      ).toBuffer
     ImageWriter.writeImageToFile(input, s"test_image.${ImageWriter.DEFAULT_FORMAT}")
   }
 

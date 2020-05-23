@@ -4,11 +4,12 @@ import common.Common.{Color, Pos3}
 import common.{Color, DiffuseMaterial, HittableObject, Pos3, Vec3}
 import file.ImageWriter
 
+import scala.collection.mutable
 import scala.util.Random
 
 class RayTracer(camera: Camera, scene: Scene) {
 
-  def render(imageWidth: Int, imageHeight: Int): Array[Array[Color]] = {
+  def render(imageWidth: Int, imageHeight: Int): mutable.Buffer[mutable.Buffer[Color]] = {
     (0 until imageHeight).reverse.map(j => {
       (0 until imageWidth).map(i  => {
         if(RayTracerConfig.ANTI_ALIASING){
@@ -16,8 +17,8 @@ class RayTracer(camera: Camera, scene: Scene) {
         }else{
           getColorForPixel(i,j,imageWidth, imageHeight)
         }
-      }).toArray
-    }).toArray
+      }).toBuffer
+    }).toBuffer
   }
 
   private def getColorForPixel(i: Int, j: Int, width: Int, height: Int): Color = {
@@ -94,12 +95,15 @@ class RayTracer(camera: Camera, scene: Scene) {
 
 object RayTracerMain{
   def main(args: Array[String]): Unit = {
+    println("Starting Ray Tracer")
     val aspectRatio: Double = 16D/9D
     val imageWidth: Int = 348
     val imageHeight: Int = (imageWidth / aspectRatio).toInt
 
+    println("Creating camera")
     val camera = Camera(aspectRatio = aspectRatio)
 
+    println("Creating scene")
     val scene = new Scene()
       .setBackground(new Background)
       .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5).withMaterial(DiffuseMaterial()))
@@ -107,11 +111,21 @@ object RayTracerMain{
 
     val tracer = new RayTracer(camera, scene)
 
-    val imageBuffer: Array[Array[Color]] = tracer.render(imageWidth, imageHeight)
-
+    println("Start rendering")
+    var start = System.currentTimeMillis()
+    val imageBuffer: mutable.Buffer[mutable.Buffer[Color]] = tracer.render(imageWidth, imageHeight)
+    println(s"Finished rendering, took ${(System.currentTimeMillis() - start)/1E3} sec")
     val postProcessor = new PostProcessor
 
-    val postProcessBuffer: Array[Array[Color]] = postProcessor.process(imageBuffer)
+    println(s"Start post-processing")
+    start = System.currentTimeMillis()
+    val postProcessBuffer: mutable.Buffer[mutable.Buffer[Color]] = postProcessor.process(imageBuffer)
+    println(s"Finished post-processing, took ${(System.currentTimeMillis() - start)/1E3} sec")
+
+    println(s"Start writing image to file")
+    start = System.currentTimeMillis()
     ImageWriter.writeImageToFile(postProcessBuffer, "tutorial_image.jpg")
+    println(s"Finished writing image to file, took ${(System.currentTimeMillis() - start)/1E3} sec")
+    println(s"Process finished, exiting")
   }
 }
