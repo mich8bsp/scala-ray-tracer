@@ -1,10 +1,10 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{Pos3, Utils, Vec3}
+import common.{Pos3, Sphere, Utils, Vec3}
 import file.ImageWriter
 
-class RayTracer(cameraPos: Pos3, viewport: Viewport) {
+class RayTracer(cameraPos: Pos3, viewport: Viewport, scene: Scene) {
 
   def render(imageWidth: Int, imageHeight: Int): Array[Array[Color]] = {
     (0 until imageHeight).reverse.map(j => {
@@ -14,15 +14,17 @@ class RayTracer(cameraPos: Pos3, viewport: Viewport) {
 
         val viewportPoint: Pos3 = viewport.getPosByPercentage(horizontalPerc, verticalPerc)
         val rayCameraToViewportPoint: Ray = Ray.create(cameraPos, viewportPoint - cameraPos)
-        rayColorAt(rayCameraToViewportPoint)
+        trace(rayCameraToViewportPoint)
       }).toArray
     }).toArray
   }
 
-  def rayColorAt(r: Ray): Color = {
-    val unitDirection = r.direction.unit
-    val t = 0.5 * (unitDirection.y + 1.0)
-    Utils.colorNormalizer(1.0-0.5*t, 1.0 - 0.3*t, 1.0)
+  private def trace(r: Ray): Color = {
+    scene.sceneObjects
+      .filter(_.isHitByRay(r))
+      .lastOption
+      .map(_.getRayHitColor(r))
+      .getOrElse((0,0,0))
   }
 
 }
@@ -52,12 +54,18 @@ object RayTracerMain{
     val focalLength = 1D
     val cameraOrigin = Pos3.create
 
-    val tracer = new RayTracer(cameraOrigin, Viewport(
+    val viewport = Viewport(
       width = viewportWidth,
       height = viewportHeight,
       focalLength = focalLength,
       cameraOrigin = cameraOrigin
-    ))
+    )
+
+    val scene = new Scene()
+      .addToScene(new Background)
+      .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5))
+
+    val tracer = new RayTracer(cameraOrigin, viewport, scene)
 
     val imageBuffer: Array[Array[Color]] = tracer.render(imageWidth, imageHeight)
     ImageWriter.writeImageToFile(imageBuffer, "tutorial_image.jpg")
