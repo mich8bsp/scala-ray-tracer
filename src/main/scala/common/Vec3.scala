@@ -40,6 +40,8 @@ object Pos3{
 }
 
 object Vec3{
+  val Infinity: Vec3 = create(Double.MaxValue, Double.MaxValue, Double.MaxValue)
+
   def create: Vec3 = create(0D,0D,0D)
   def create(x: Double, y: Double, z: Double): Vec3 = {
     //TODO: object pool?

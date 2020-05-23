@@ -13,6 +13,16 @@ case class Ray(
 
 }
 
+case class RayHitData(
+                     ray: Ray,
+                     t: Double,
+                     hitPoint: Pos3,
+                     hitPointOutNormal: Vec3
+                     ){
+  val frontFace: Boolean = ray.direction * hitPointOutNormal < 0
+  val hitPointNormal: Vec3 = if(frontFace) hitPointOutNormal else -hitPointOutNormal
+}
+
 object Ray{
 
   def create(origin: Pos3, direction: Vec3): Ray = Ray(origin, direction)

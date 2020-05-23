@@ -1,7 +1,7 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{Pos3, Vec3}
+import common.{HittableObject, Pos3, Vec3}
 import file.ImageWriter
 
 class RayTracer(cameraPos: Pos3, viewport: Viewport, scene: Scene) {
@@ -20,10 +20,22 @@ class RayTracer(cameraPos: Pos3, viewport: Viewport, scene: Scene) {
   }
 
   private def trace(r: Ray): Color = {
-    scene.sceneObjects
-      .filter(_.isHitByRay(r))
-      .flatMap(_.getRayHitColor(r))
-      .lastOption
+    val objectsHitData: Seq[(HittableObject, RayHitData)] = scene.sceneObjects
+        .map(obj => (obj, obj.hitWithRay(r)))
+      .filter({
+        case (obj, hitData) => obj.isHitByRay(hitData)
+      })
+      .flatMap({
+        case (obj, hitData) => hitData.map((obj, _))
+      })
+        .toSeq
+
+      Some(objectsHitData)
+      .filter(_.nonEmpty)
+      .map(_.minBy(_._2.t))
+      .flatMap({
+        case (obj, hitData) => obj.getRayHitColor(hitData)
+      })
       .getOrElse((0,0,0))
   }
 
@@ -64,6 +76,7 @@ object RayTracerMain{
     val scene = new Scene()
       .addToScene(new Background)
       .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5))
+      .addToScene(Sphere(center = Pos3.create(0, -100.5, -1), radius = 100))
 
     val tracer = new RayTracer(cameraOrigin, viewport, scene)
 
