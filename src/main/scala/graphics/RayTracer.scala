@@ -1,7 +1,7 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{Color, DiffuseMaterial, HittableObject, Pos3, Vec3}
+import common.{Color, DiffuseMaterial, DiffuseMaterialApproxLambert, DiffuseMaterialTrueLambert, HittableObject, Pos3, Vec3}
 import file.ImageWriter
 
 import scala.collection.mutable
@@ -77,15 +77,11 @@ class RayTracer(camera: Camera, scene: Scene) {
       .toSeq
   }
 
-  private def getBounceTarget(bouncePointData: RayHitData): Pos3 = {
-    bouncePointData.hitPoint + bouncePointData.hitPointNormal + Vec3.randomInUnitSphere
-  }
-
   private def bounceRayOffObject(obj: HittableObject, hitData: RayHitData, bounceDepth: Int): Option[Color] = obj.getMaterial match {
-    case Some(DiffuseMaterial(diffuseRate)) => {
-      val bounceTarget: Pos3 = getBounceTarget(hitData)
-      val bounceRay: Ray = Ray.create(hitData.hitPoint, bounceTarget - hitData.hitPoint)
-      Some(trace(bounceRay, bounceDepth-1) * diffuseRate)
+    case Some(mat: DiffuseMaterial) => {
+      val bounceTargetOpt: Option[Pos3] = mat.rayBounceTarget(hitData)
+      val bounceRayOpt: Option[Ray] = bounceTargetOpt.map(target => Ray.create(hitData.hitPoint, target - hitData.hitPoint))
+      bounceRayOpt.map(bounceRay => trace(bounceRay, bounceDepth-1) * mat.diffuseRate)
     }
     case _ => None
   }
@@ -106,8 +102,8 @@ object RayTracerMain{
     println("Creating scene")
     val scene = new Scene()
       .setBackground(new Background)
-      .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5).withMaterial(DiffuseMaterial()))
-      .addToScene(Sphere(center = Pos3.create(0, -100.5, -1), radius = 100).withMaterial(DiffuseMaterial()))
+      .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5).withMaterial(DiffuseMaterialTrueLambert()))
+      .addToScene(Sphere(center = Pos3.create(0, -100.5, -1), radius = 100).withMaterial(DiffuseMaterialApproxLambert()))
 
     val tracer = new RayTracer(camera, scene)
 

@@ -54,14 +54,12 @@ object Vec3{
 
   def random: Vec3 = random(0D, 1D)
   def random(min: Double, max: Double): Vec3 = Vec3.create(Random.between(min, max), Random.between(min, max), Random.between(min, max))
-  def randomInUnitSphere: Vec3 = {
-    var found: Option[Vec3] = None
-    while(found.isEmpty){
-      val p = random(-1, 1)
-      if(p.lengthSquared < 1){
-        found = Some(p)
-      }
-    }
-    found.get
+
+  def randomUnit: Vec3 = {
+      val phi: Double = Random.between(0, 2D * math.Pi)
+      val z: Double = Random.between(-1D, 1D)
+      val r: Double = math.sqrt(1D - z*z)
+
+      Vec3.create(r*math.cos(phi), r*math.sin(phi), z)
   }
 }
