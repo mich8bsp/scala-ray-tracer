@@ -1,20 +1,25 @@
 package common
 
-import common.Common.Pos3
+import common.Common.{Color, Pos3}
 import common.Vec3.random
 import graphics.RayHitData
 
 trait Material {
-  def rayBounceTarget(rayHitData: RayHitData): Option[Pos3]
+  def scatterRay(rayHitData: RayHitData): Option[Pos3]
+  def attenuate(color: Color): Color
 }
 
 trait DiffuseMaterial extends Material {
-  val diffuseRate: Double
+  val attenuationColor: Color
+
+  override def attenuate(color: Color): Color = {
+    color :*: attenuationColor
+  }
 }
 
-case class DiffuseMaterialApproxLambert(diffuseRate: Double = 0.5) extends DiffuseMaterial {
+case class DiffuseMaterialApproxLambert(attenuationColor: Color) extends DiffuseMaterial {
 
-  override def rayBounceTarget(rayHitData: RayHitData): Option[Pos3] = {
+  override def scatterRay(rayHitData: RayHitData): Option[Pos3] = {
     Some(rayHitData.hitPoint + rayHitData.hitPointNormal + randomVecInUnitSphere)
   }
 
@@ -30,16 +35,27 @@ case class DiffuseMaterialApproxLambert(diffuseRate: Double = 0.5) extends Diffu
   }
 }
 
-case class DiffuseMaterialTrueLambert(diffuseRate: Double = 0.5) extends DiffuseMaterial {
-  override def rayBounceTarget(rayHitData: RayHitData): Option[Pos3] = {
+case class DiffuseMaterialTrueLambert(attenuationColor: Color) extends DiffuseMaterial {
+  override def scatterRay(rayHitData: RayHitData): Option[Pos3] = {
     Some(rayHitData.hitPoint + rayHitData.hitPointNormal + Vec3.randomUnit)
   }
 }
 
-case class DiffuseMaterialAlt(diffuseRate: Double = 0.5) extends DiffuseMaterial {
-  override def rayBounceTarget(rayHitData: RayHitData): Option[Pos3] = {
+case class DiffuseMaterialAlt(attenuationColor: Color) extends DiffuseMaterial {
+  override def scatterRay(rayHitData: RayHitData): Option[Pos3] = {
     val unitVector = Vec3.randomUnit
     val sameHemisphereAsNormal: Boolean = unitVector * rayHitData.hitPointNormal > 0D
     Some(rayHitData.hitPoint + {if(sameHemisphereAsNormal) unitVector else -unitVector})
   }
+}
+
+case class MetalMaterial(attenuationColor: Color, diffusion: Double) extends Material {
+  override def scatterRay(rayHitData: RayHitData): Option[Pos3] = {
+    val v = rayHitData.ray.direction
+    val n = rayHitData.hitPointNormal
+    val b = v * n
+    Some(v - n * 2D*b + (Vec3.randomUnit * diffusion))
+  }
+
+  override def attenuate(color: Color): Color = color :*: attenuationColor
 }

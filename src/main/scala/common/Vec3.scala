@@ -19,7 +19,9 @@ case class Vec3(x: Double,
   def *(t: Double): Vec3 = create(x*t, y*t, z*t)
   def /(t: Double): Vec3 = if(t!=0) *(1/t) else throw new IllegalArgumentException("Can't divide vector by 0")
   def *(u: Vec3): Double = x*u.x + y*u.y + z*u.z
-
+  def :*:(other: Vec3): Vec3 = Vec3.create(
+    x * other.x, y * other.y, z * other.z
+  )
   def x(u: Vec3): Vec3 = create(
       y * u.z - z * u.y,
       z * u.x - x * u.z,
