@@ -1,7 +1,7 @@
 package graphics
 
 import common.Common.{Color, Pos3}
-import common.{Color, DiffuseMaterialApproxLambert, DiffuseMaterialTrueLambert, HittableObject, MetalMaterial, Pos3, Vec3}
+import common.{Color, DielectricMaterial, DiffuseMaterialApproxLambert, DiffuseMaterialTrueLambert, HittableObject, MetalMaterial, Pos3, Vec3}
 import file.ImageWriter
 
 import scala.collection.mutable
@@ -102,7 +102,8 @@ object RayTracerMain{
     val scene = new Scene()
       .setBackground(new Background)
       .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5).withMaterial(DiffuseMaterialTrueLambert(Color(0.7, 0.3, 0.3))))
-      .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = 0.4).withMaterial(MetalMaterial(Color(0.8,0.6,0.2), diffusion = 0.3)))
+      .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = 0.5).withMaterial(DielectricMaterial(1.5)))
+      .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = -0.45).withMaterial(DielectricMaterial(1.5)))
       .addToScene(Sphere(center = Pos3.create(-1, 0, -1), radius = 0.4).withMaterial(MetalMaterial(Color(0.8,0.8,0.8), diffusion = 0.1)))
       .addToScene(Sphere(center = Pos3.create(0, -100.5, -1), radius = 100).withMaterial(DiffuseMaterialApproxLambert(Color(0.8, 0.8, 0D))))
 
