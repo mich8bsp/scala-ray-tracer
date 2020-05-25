@@ -1,13 +1,18 @@
 package graphics
 
+import java.util.concurrent.Executors
+
 import common.Common.{Color, Pos3}
-import common.{Color, DielectricMaterial, DiffuseMaterialApproxLambert, DiffuseMaterialTrueLambert, HittableObject, MetalMaterial, Pos3, Vec3}
+import common.{Color, HittableObject, Pos3}
 import file.ImageWriter
 
 import scala.collection.mutable
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.Random
 
-class RayTracer(camera: Camera, scene: Scene) {
+class RayTracer(camera: Camera, scene: Scene)
+               (implicit ec: ExecutionContext){
 
   def render(imageWidth: Int, imageHeight: Int): mutable.Buffer[mutable.Buffer[Color]] = {
     val pixelsToRender = imageHeight * imageWidth
@@ -21,7 +26,7 @@ class RayTracer(camera: Camera, scene: Scene) {
           lastProgress = currProgress
         }
         if(RayTracerConfig.ANTI_ALIASING){
-          getAAColorForPixel(i,j,imageWidth, imageHeight)
+          Await.result(getAAColorForPixel(i,j,imageWidth, imageHeight), Duration.Inf)
         }else{
           getColorForPixel(i,j,imageWidth, imageHeight)
         }
@@ -42,17 +47,19 @@ class RayTracer(camera: Camera, scene: Scene) {
     trace(ray)
   }
 
-  private def getAAColorForPixel(i: Int, j: Int, width: Int, height: Int): Color = {
+  private def getAAColorForPixel(i: Int, j: Int, width: Int, height: Int): Future[Color] = {
     val samplingSize = RayTracerConfig.ANTI_ALIASING_SAMPLING_SIZE
-    val sampleColors: Seq[Color] = (0 until samplingSize).map(_ => {
+    val sampleColors: Future[Seq[Color]] = Future.sequence((0 until samplingSize).map(_ => {
       val horizontalPerc: Double = (i.toDouble + Random.between(0, 1D)) / width
       val verticalPerc: Double = (j.toDouble + Random.between(0, 1D)) / height
 
       val ray: Ray = camera.getRay(horizontalPerc, verticalPerc)
-      trace(ray)
-    })
+      Future {
+        trace(ray)
+      }
+    }))
 
-    sampleColors.foldLeft(Color())(_ + _) /samplingSize
+    sampleColors.map(_.foldLeft(Color())(_ + _) /samplingSize)
   }
 
   private def trace(r: Ray, bounceDepth: Int = 50): Color = {
@@ -103,6 +110,9 @@ class RayTracer(camera: Camera, scene: Scene) {
 
 object RayTracerMain{
   def main(args: Array[String]): Unit = {
+
+    implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(100))
+
     println("Starting Ray Tracer")
     val aspectRatio: Double = 16D/9D
     val imageWidth: Int = 348
