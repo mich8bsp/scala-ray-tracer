@@ -111,7 +111,7 @@ class RayTracer(camera: Camera, scene: Scene)
 object RayTracerMain{
   def main(args: Array[String]): Unit = {
 
-    implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(100))
+    implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(RayTracerConfig.ANTI_ALIASING_SAMPLING_SIZE))
 
     println("Starting Ray Tracer")
     val aspectRatio: Double = 16D/9D
