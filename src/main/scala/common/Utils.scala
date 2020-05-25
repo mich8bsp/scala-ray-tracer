@@ -9,6 +9,8 @@ object Common {
 }
 
 object Color{
+  def random = Vec3.random
+
   def apply(): Color = Vec3.create
   def apply(r: Double, g: Double, b: Double): Color = {
     Vec3.create(r, g, b)

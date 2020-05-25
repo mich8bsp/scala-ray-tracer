@@ -10,8 +10,16 @@ import scala.util.Random
 class RayTracer(camera: Camera, scene: Scene) {
 
   def render(imageWidth: Int, imageHeight: Int): mutable.Buffer[mutable.Buffer[Color]] = {
-    (0 until imageHeight).reverse.map(j => {
+    val pixelsToRender = imageHeight * imageWidth
+    var lastProgress: Int = -1
+    val res = (0 until imageHeight).reverse.map(j => {
       (0 until imageWidth).map(i  => {
+        val pixelsProcessed: Int = (imageHeight-1-j)*imageWidth + i
+        val currProgress = ((pixelsProcessed.toDouble * 100D)/pixelsToRender.toDouble).toInt
+        if(currProgress!=lastProgress){
+          println(s"$currProgress%")
+          lastProgress = currProgress
+        }
         if(RayTracerConfig.ANTI_ALIASING){
           getAAColorForPixel(i,j,imageWidth, imageHeight)
         }else{
@@ -19,6 +27,11 @@ class RayTracer(camera: Camera, scene: Scene) {
         }
       }).toBuffer
     }).toBuffer
+
+    if(lastProgress!=100){
+      println(s"100%")
+    }
+    res
   }
 
   private def getColorForPixel(i: Int, j: Int, width: Int, height: Int): Color = {
@@ -96,24 +109,20 @@ object RayTracerMain{
     val imageHeight: Int = (imageWidth / aspectRatio).toInt
 
     println("Creating camera")
-    val origin = Pos3.create(3,3,2)
-    val target = Pos3.create(0,0,-1)
+    val origin = Pos3.create(13,2,3)
+    val target = Pos3.create(0,0,0)
+    val distToFocus = 10D
+    val aperture = 0.1
+    val vertFOV = 20
     val camera = Camera(aspectRatio = aspectRatio,
       origin = origin,
       lookAt = target,
-      focusDistance = (origin - target).length,
-      aperture = 1.4,
-      vertFOV = 20)
+      focusDistance = distToFocus,
+      aperture = aperture,
+      vertFOV = vertFOV)
 
     println("Creating scene")
-    val scene = new Scene()
-      .setBackground(new Background)
-      .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5).withMaterial(DiffuseMaterialTrueLambert(Color(0.7, 0.3, 0.3))))
-      .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = 0.5).withMaterial(DielectricMaterial(1.5)))
-      .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = -0.45).withMaterial(DielectricMaterial(1.5)))
-      .addToScene(Sphere(center = Pos3.create(0.25, 0, -0.2), radius = 0.3).withMaterial(MetalMaterial(Color(0.8,0.6,0.2), diffusion = 0.3)))
-      .addToScene(Sphere(center = Pos3.create(-1, 0, -1), radius = 0.4).withMaterial(MetalMaterial(Color(0.8,0.8,0.8), diffusion = 0.1)))
-      .addToScene(Sphere(center = Pos3.create(0, -100.5, -1), radius = 100).withMaterial(DiffuseMaterialApproxLambert(Color(0.8, 0.8, 0D))))
+    val scene = SceneGenerator.generate
 
     val tracer = new RayTracer(camera, scene)
 
