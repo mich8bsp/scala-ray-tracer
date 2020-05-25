@@ -96,10 +96,14 @@ object RayTracerMain{
     val imageHeight: Int = (imageWidth / aspectRatio).toInt
 
     println("Creating camera")
+    val origin = Pos3.create(3,3,2)
+    val target = Pos3.create(0,0,-1)
     val camera = Camera(aspectRatio = aspectRatio,
-      origin = Pos3.create(-2, 2, 1),
-      lookAt = Pos3.create(0,0,-1),
-      vertFOV = 40)
+      origin = origin,
+      lookAt = target,
+      focusDistance = (origin - target).length,
+      aperture = 1.4,
+      vertFOV = 20)
 
     println("Creating scene")
     val scene = new Scene()

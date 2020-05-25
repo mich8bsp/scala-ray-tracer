@@ -56,6 +56,13 @@ object Vec3{
 
   def random: Vec3 = random(0D, 1D)
   def random(min: Double, max: Double): Vec3 = Vec3.create(Random.between(min, max), Random.between(min, max), Random.between(min, max))
+  def randomInUnitDisk: Vec3 = {
+    val x: Double = Random.between(0D, 1D)
+    val z: Double = 0D
+    val maxY: Double = math.sqrt(1 - x*x - z*z)
+    val y: Double = Random.between(0, maxY)
+    Vec3.create(x,y,z)
+  }
 
   def randomUnit: Vec3 = {
       val phi: Double = Random.between(0, 2D * math.Pi)
