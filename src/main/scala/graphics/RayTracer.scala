@@ -96,7 +96,10 @@ object RayTracerMain{
     val imageHeight: Int = (imageWidth / aspectRatio).toInt
 
     println("Creating camera")
-    val camera = Camera(aspectRatio = aspectRatio)
+    val camera = Camera(aspectRatio = aspectRatio,
+      origin = Pos3.create(-2, 2, 1),
+      lookAt = Pos3.create(0,0,-1),
+      vertFOV = 40)
 
     println("Creating scene")
     val scene = new Scene()
@@ -104,6 +107,7 @@ object RayTracerMain{
       .addToScene(Sphere(center = Pos3.create(0, 0, -1), radius = 0.5).withMaterial(DiffuseMaterialTrueLambert(Color(0.7, 0.3, 0.3))))
       .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = 0.5).withMaterial(DielectricMaterial(1.5)))
       .addToScene(Sphere(center = Pos3.create(1, 0, -1), radius = -0.45).withMaterial(DielectricMaterial(1.5)))
+      .addToScene(Sphere(center = Pos3.create(0.25, 0, -0.2), radius = 0.3).withMaterial(MetalMaterial(Color(0.8,0.6,0.2), diffusion = 0.3)))
       .addToScene(Sphere(center = Pos3.create(-1, 0, -1), radius = 0.4).withMaterial(MetalMaterial(Color(0.8,0.8,0.8), diffusion = 0.1)))
       .addToScene(Sphere(center = Pos3.create(0, -100.5, -1), radius = 100).withMaterial(DiffuseMaterialApproxLambert(Color(0.8, 0.8, 0D))))
 
